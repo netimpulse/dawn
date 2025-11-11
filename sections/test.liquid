@@ -1,0 +1,604 @@
+{%- comment -%}
+  ============================================================
+  Sektion: Trockeneis Detail-Tabs (Modern, CTA unten) – Vorlagegröße
+  - ALLE Karten (Tiles, KPI, Feature, Vorteil) im 2er-Grid
+  - NUR die Bestell-Kachel kommt darunter in voller Breite
+  - Größen an Vorlage angepasst (zentraler Regler --scale)
+  - Breadcrumb im Hero ausgeblendet
+  ============================================================
+{%- endcomment -%}
+
+{% if section.settings.enable_inter_font %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+{% endif %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+<style>
+  /* ===== Grundvariablen + Scale ===== */
+  #te-detail-{{ section.id }}{
+    --scale: 1.12; /* <- hier stellst du alles größer/kleiner */
+
+    --fs-base: calc({{ section.settings.fs_base | default: 17 }}px * var(--scale));
+    --fs-h1:   calc({{ section.settings.fs_h1   | default: 42 }}px * var(--scale));
+    --fs-h2:   calc({{ section.settings.fs_h2   | default: 28 }}px * var(--scale));
+    --fs-h3:   calc({{ section.settings.fs_h3   | default: 20 }}px * var(--scale));
+
+    --color-body: {{ section.settings.color_body }};
+    --color-head: {{ section.settings.color_head }};
+    --hero-start: {{ section.settings.hero_start }};
+    --hero-end:   {{ section.settings.hero_end }};
+    --hero-text:  {{ section.settings.hero_text }};
+    --hero-title-color: {{ section.settings.hero_title_color }};
+
+    --pill-normal-bg:   {{ section.settings.pill_bg }};
+    --pill-normal-text: {{ section.settings.pill_text }};
+    --pill-border-color:{{ section.settings.pill_border }};
+    --pill-hover-bg:    {{ section.settings.pill_hover_bg }};
+    --pill-hover-text:  {{ section.settings.pill_hover_text }};
+    --pill-active-bg:   {{ section.settings.pill_active_bg }};
+    --pill-active-text: {{ section.settings.pill_active_text }};
+
+    --c-primary:     {{ section.settings.primary_color  | default: '#0ea5e9' }};
+    --c-primary-600: {{ section.settings.primary_dark   | default: '#0284c7' }};
+    --c-success:     {{ section.settings.success_color  | default: '#16a34a' }};
+    --c-border:      {{ section.settings.border_color   | default: '#e2e8f0' }};
+    --c-bg:          {{ section.settings.background_color | default: '#f8fafc' }};
+    --c-muted:       {{ section.settings.muted_color    | default: '#475569' }};
+    --radius:        {{ section.settings.border_radius  | default: 12 }}px;
+
+    font-size: var(--fs-base);
+    color: var(--color-body);
+    {% if section.settings.enable_inter_font %}font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;{% endif %}
+    line-height:1.6;
+  }
+
+  /* ===== Layout ===== */
+  #te-detail-{{ section.id }} .te-container{max-width:{{ section.settings.container_width | default: 1120 }}px;margin:0 auto;padding:0 20px;}
+  @media(min-width:1200px){ #te-detail-{{ section.id }} .te-container{ max-width: 1200px; } }
+
+  #te-detail-{{ section.id }} .te-section{padding:48px 0;background:var(--c-bg);}
+
+  /* >>> das eigentliche 2er-Grid für ALLE Karten außer CTA <<< */
+  #te-detail-{{ section.id }} .te-tiles--main{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:calc(26px * var(--scale));
+    align-items:stretch;
+  }
+  @media(min-width:720px){
+    #te-detail-{{ section.id }} .te-tiles--main{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+  }
+
+  /* ===== Pillbar ===== */
+  #te-detail-{{ section.id }} .te-pillbar{z-index:1030;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid var(--c-border)}
+  {% if section.settings.enable_glassmorphism %}#te-detail-{{ section.id }} .te-pillbar{background:rgba(255,255,255,.85);backdrop-filter:blur(10px)}{% endif %}
+  {% if section.settings.sticky %}#te-detail-{{ section.id }} .te-pillbar{position:sticky;top:{{ section.settings.sticky_offset }}px}{% endif %}
+  #te-detail-{{ section.id }} .te-pillbar__wrap{display:flex;align-items:center;gap:14px;padding:12px 0}
+  #te-detail-{{ section.id }} .te-pillbar__title{font-weight:700;white-space:nowrap;color:var(--c-muted);font-size:calc(.95rem * var(--scale))}
+  #te-detail-{{ section.id }} .te-pillbar__pills{display:flex;flex-wrap:wrap;gap:8px}
+  #te-detail-{{ section.id }} .te-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding: calc(9px * var(--scale)) calc(18px * var(--scale));
+    border-radius:999px;background:var(--pill-normal-bg);color:var(--pill-normal-text);
+    border:1px solid var(--pill-border-color);font-weight:600;font-size:calc(.98rem * var(--scale));
+    transition:.2s;line-height:1
+  }
+  #te-detail-{{ section.id }} .te-pill:hover{background:var(--pill-hover-bg);color:var(--pill-hover-text);border-color:var(--c-border);transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.08)}
+  #te-detail-{{ section.id }} .te-pill.is-active{background:var(--pill-active-bg);color:var(--pill-active-text);border-color:var(--pill-active-bg);box-shadow:0 2px 8px rgba(14,165,233,.3)}
+  #te-detail-{{ section.id }} .te-pill i{font-size:calc(1.05em * var(--scale))}
+
+  /* ===== Hero ===== */
+  #te-detail-{{ section.id }} .te-hero-band{
+    background:linear-gradient({{ section.settings.hero_gradient_angle | default: 110 }}deg,var(--hero-start) 0%,var(--hero-end) 70%,{{ section.settings.hero_third_color | default: '#1e293b' }} 100%);
+    color:var(--hero-text);padding:calc(64px * var(--scale)) 0;position:relative;overflow:hidden;
+  }
+  /* Breadcrumb weg */
+  #te-detail-{{ section.id }} .te-breadcrumb{ display:none !important; }
+
+  #te-detail-{{ section.id }} .te-h1{font-size:var(--fs-h1);font-weight:900;color:var(--hero-title-color);margin:0 0 8px;line-height:1.2}
+  #te-detail-{{ section.id }} .te-lead{color:var(--hero-text);opacity:.9;font-size:calc(1.05rem * var(--scale));max-width:800px}
+
+  /* ===== Karten-Styling (für alle im Grid) ===== */
+  #te-detail-{{ section.id }} .te-card{
+    border:1px solid var(--c-border);
+    border-radius:var(--radius);
+    background:#fff;
+    padding:calc(24px * var(--scale));
+    box-shadow:0 1px 2px rgba(0,0,0,.02),0 4px 8px rgba(0,0,0,.04);
+    transition:.3s;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+  }
+  #te-detail-{{ section.id }} .te-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 2px 4px rgba(0,0,0,.03),0 8px 24px rgba(0,0,0,.08);
+    border-color:var(--c-primary);
+  }
+
+  /* ===== Tile (eigentlich nur Spezialisierung von te-card) ===== */
+  #te-detail-{{ section.id }} .te-tile__title{display:flex;align-items:center;gap:12px;font-weight:700;margin:0 0 12px;color:var(--c-primary);font-size:calc(1.22rem * var(--scale))}
+  #te-detail-{{ section.id }} .te-tile__title i{font-size:calc(1.2rem * var(--scale))}
+  #te-detail-{{ section.id }} .te-tile__text{color:var(--c-muted);font-size:calc(1.06rem * var(--scale));line-height:1.6}
+
+  /* ===== Checkliste ===== */
+  #te-detail-{{ section.id }} .te-checklist{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:10px}
+  #te-detail-{{ section.id }} .te-checklist li{display:flex;gap:10px;align-items:flex-start;color:var(--c-muted);font-size:calc(1.04rem * var(--scale))}
+  #te-detail-{{ section.id }} .te-icon-check{width:calc(22px * var(--scale));height:calc(22px * var(--scale));border-radius:50%;background:linear-gradient(135deg,var(--c-success) 0%,#15803d 100%);position:relative;margin-top:2px;flex-shrink:0;box-shadow:0 2px 4px rgba(22,163,74,.2)}
+  #te-detail-{{ section.id }} .te-icon-check::after{content:'';position:absolute;inset:5px 6px 5px 6px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg)}
+
+  /* ===== KPI im Grid ===== */
+  #te-detail-{{ section.id }} .te-kpi-card .te-kpi{
+    display:flex;gap:calc(14px * var(--scale));
+    padding:0;
+    border:none;
+    background:transparent;
+    margin-top:0;
+  }
+  #te-detail-{{ section.id }} .te-kpi-card .te-kpi__icon{font-size:calc(1.6rem * var(--scale));color:var(--c-primary)}
+  #te-detail-{{ section.id }} .te-kpi-card .te-kpi__title{font-size:calc(1.06rem * var(--scale));}
+  #te-detail-{{ section.id }} .te-kpi-card .te-kpi__sub{font-size:calc(.94rem * var(--scale));}
+
+  /* ===== Feature im Grid ===== */
+  #te-detail-{{ section.id }} .te-feature-card h6{font-size:calc(var(--fs-h3) * 1.05);margin-bottom:12px;display:flex;gap:10px;align-items:center}
+  #te-detail-{{ section.id }} .te-feature-card h6 i{color:var(--c-primary);font-size:calc(1.25rem * var(--scale))}
+  #te-detail-{{ section.id }} .te-feature-card .te-feature__list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+  #te-detail-{{ section.id }} .te-feature-card .te-feature__item{display:flex;gap:10px;align-items:flex-start;font-size:calc(1.02rem * var(--scale));color:var(--c-muted)}
+  #te-detail-{{ section.id }} .te-feature-card .te-feature__icon{color:var(--c-primary);font-size:calc(1.1rem * var(--scale));margin-top:3px}
+
+  /* ===== Vorteile-Grid (4 kleine Karten) im Grid ===== */
+  #te-detail-{{ section.id }} .te-benefit-wrapper{display:flex;flex-direction:column;gap:16px}
+  #te-detail-{{ section.id }} .te-benefit-grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:520px){#te-detail-{{ section.id }} .te-benefit-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:992px){#te-detail-{{ section.id }} .te-benefit-grid{grid-template-columns:repeat(4,1fr)}}
+  #te-detail-{{ section.id }} .te-benefit-card{border:1px solid var(--c-border);border-radius:calc(var(--radius) - 2px);background:#fff;padding:14px;display:flex;gap:10px}
+  #te-detail-{{ section.id }} .te-benefit-card i{font-size:1.25rem;color:var(--c-primary)}
+  #te-detail-{{ section.id }} .te-benefit-card h6{margin:0;font-size:1rem}
+  #te-detail-{{ section.id }} .te-benefit-card p{margin:4px 0 0;font-size:.9rem}
+
+  /* ===== CTA unten (einzige volle Breite) ===== */
+  #te-detail-{{ section.id }} .te-cta-wrap{margin-top:32px}
+  #te-detail-{{ section.id }} .te-cta-box{border-radius:var(--radius);background:#fff;box-shadow:0 4px 6px rgba(0,0,0,.07),0 10px 15px rgba(0,0,0,.1);overflow:hidden;border:1px solid #e5e7eb}
+  #te-detail-{{ section.id }} .te-cta-box::before{content:'';display:block;height:4px;background:var(--c-primary);margin-bottom:24px}
+  #te-detail-{{ section.id }} .te-cta-box__inner{padding:0 24px 24px 24px}
+  #te-detail-{{ section.id }} .te-cta-box__title{font-weight:700;font-size:calc(1.18rem * var(--scale));margin:0 0 8px;color:var(--color-head)}
+  #te-detail-{{ section.id }} .te-cta-box__text{color:#6b7280;font-size:calc(1.02rem * var(--scale));margin:0 0 24px;line-height:1.5}
+  #te-detail-{{ section.id }} .te-btn{display:inline-block;width:100%;margin-bottom:10px;padding:calc(14px * var(--scale)) calc(22px * var(--scale));border-radius:8px;font-weight:600;text-align:center;border:2px solid transparent;transition:.2s;cursor:pointer;font-size:calc(1.04rem * var(--scale));line-height:1.2}
+  #te-detail-{{ section.id }} .te-btn--primary{background:var(--c-primary);color:#fff;border-color:var(--c-primary)}
+  #te-detail-{{ section.id }} .te-btn--primary:hover{background:var(--c-primary-600);border-color:var(--c-primary-600);transform:translateY(-1px);box-shadow:0 4px 6px rgba(14,165,233,.25)}
+  #te-detail-{{ section.id }} .te-btn--outline{background:#fff;border-color:#e5e7eb;color:#374151}
+  #te-detail-{{ section.id }} .te-btn--outline:hover{background:#f9fafb;border-color:#d1d5db}
+
+  /* ===== Route Handling ===== */
+  #te-detail-{{ section.id }} .te-route{display:none}
+  #te-detail-{{ section.id }} .te-route.is-active{display:block;animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ===== Responsive ===== */
+  @media(max-width:576px){
+    #te-detail-{{ section.id }}{ --scale: 1.05; }
+    #te-detail-{{ section.id }} .te-hero-band{padding:48px 0}
+    #te-detail-{{ section.id }} .te-pillbar__wrap{flex-direction:column;align-items:flex-start}
+    #te-detail-{{ section.id }} .te-pillbar__pills{width:100%}
+  }
+</style>
+
+<section id="te-detail-{{ section.id }}" data-section-id="{{ section.id }}">
+  <!-- Navigation -->
+  <nav class="te-pillbar" role="navigation" aria-label="{{ section.settings.nav_label }}">
+    <div class="te-container">
+      <div class="te-pillbar__wrap">
+        {% if section.settings.nav_prefix != blank %}
+          <div class="te-pillbar__title">{{ section.settings.nav_prefix }}</div>
+        {% endif %}
+        <div class="te-pillbar__pills" id="te-pills-{{ section.id }}">
+          {% assign tab_blocks = section.blocks | where: 'type', 'tab' %}
+          {% for tab in tab_blocks %}
+            <a href="#{{ tab.settings.handle }}"
+               class="te-pill {% if forloop.first %}is-active{% endif %}"
+               data-handle="{{ tab.settings.handle }}"
+               role="tab"
+               aria-controls="te-route-{{ tab.settings.handle }}-{{ section.id }}">
+              {% if tab.settings.icon != blank %}<i class="{{ tab.settings.icon }}"></i>{% endif %}
+              <span>{{ tab.settings.label }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  {% for tab in tab_blocks %}
+    {% assign current_handle = tab.settings.handle %}
+    <div class="te-route {% if forloop.first %}is-active{% endif %}"
+         id="te-route-{{ current_handle }}-{{ section.id }}"
+         data-route="{{ current_handle }}"
+         role="tabpanel">
+
+      <!-- Hero -->
+      <div class="te-hero-band">
+        <div class="te-container">
+          <h1 class="te-h1">{{ tab.settings.title }}</h1>
+          {% if tab.settings.subtitle != blank %}<p class="te-lead">{{ tab.settings.subtitle }}</p>{% endif %}
+        </div>
+      </div>
+
+      <!-- Inhalt -->
+      <div class="te-section">
+        <div class="te-container">
+
+          <!-- 2er-Grid für ALLES außer CTA -->
+          <div class="te-tiles--main">
+            {%- comment -%} 1) KACHELN {%- endcomment -%}
+            {% assign current_tiles = section.blocks | where: 'type', 'tile' %}
+            {% for tile in current_tiles %}
+              {% if tile.settings.tab_handle == current_handle %}
+                <div class="te-card">
+                  <h5 class="te-tile__title">
+                    {% if tile.settings.icon != blank %}<i class="{{ tile.settings.icon }}"></i>{% endif %}
+                    {{ tile.settings.title }}
+                  </h5>
+                  <div class="te-tile__text">{{ tile.settings.text }}</div>
+
+                  {% if tile.settings.checklist != blank %}
+                    <ul class="te-checklist">
+                      {% assign items = tile.settings.checklist | newline_to_br | split: '<br />' %}
+                      {% for item in items %}
+                        {% if item != blank %}
+                          <li><span class="te-icon-check"></span><span>{{ item | strip }}</span></li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+
+                  {% if tile.settings.kpi_enable %}
+                    <div class="te-kpi" style="margin-top:16px;">
+                      {% if tile.settings.kpi_icon != blank %}<i class="{{ tile.settings.kpi_icon }} te-kpi__icon"></i>{% endif %}
+                      <div class="te-kpi__content">
+                        <div class="te-kpi__title">{{ tile.settings.kpi_title }}</div>
+                        {% if tile.settings.kpi_sub != blank %}<div class="te-kpi__sub">{{ tile.settings.kpi_sub }}</div>{% endif %}
+                      </div>
+                    </div>
+                  {% endif %}
+
+                  {% if tile.settings.callout_enable %}
+                    <div class="te-callout" style="margin-top:16px;border-left:4px solid var(--c-primary);background:linear-gradient(135deg,#eff6ff 0%,#e0f2fe 100%);border-radius:calc(var(--radius)/2);padding:12px 16px">
+                      {% if tile.settings.callout_title != blank %}<div style="font-weight:700;color:var(--c-primary);margin:0 0 4px;font-size:.9rem">{{ tile.settings.callout_title }}</div>{% endif %}
+                      <div style="color:var(--c-muted);font-size:.9rem;margin:0">{{ tile.settings.callout_text }}</div>
+                    </div>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+
+            {%- comment -%} 2) KPI-KARTEN {%- endcomment -%}
+            {% assign current_kpis = section.blocks | where: 'type', 'kpi' %}
+            {% for kpi in current_kpis %}
+              {% if kpi.settings.tab_handle == current_handle %}
+                <div class="te-card te-kpi-card">
+                  <div class="te-kpi">
+                    {% if kpi.settings.icon != blank %}<i class="{{ kpi.settings.icon }} te-kpi__icon"></i>{% endif %}
+                    <div class="te-kpi__content">
+                      <div class="te-kpi__title">{{ kpi.settings.title }}</div>
+                      {% if kpi.settings.sub != blank %}<div class="te-kpi__sub">{{ kpi.settings.sub }}</div>{% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+
+            {%- comment -%} 3) FEATURE-KARTEN {%- endcomment -%}
+            {% assign current_features = section.blocks | where: 'type', 'feature' %}
+            {% for feature in current_features %}
+              {% if feature.settings.tab_handle == current_handle %}
+                <div class="te-card te-feature-card">
+                  <h6>
+                    {% if feature.settings.icon != blank %}<i class="{{ feature.settings.icon }}"></i>{% endif %}
+                    {{ feature.settings.title }}
+                  </h6>
+                  {% if feature.settings.items != blank %}
+                    <ul class="te-feature__list">
+                      {% assign feat_items = feature.settings.items | newline_to_br | split: '<br />' %}
+                      {% for item in feat_items %}
+                        {% if item != blank %}
+                          <li class="te-feature__item">
+                            <i class="bi bi-check-circle-fill te-feature__icon"></i>
+                            <span>{{ item | strip }}</span>
+                          </li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+
+            {%- comment -%} 4) VORTEILS-KACHEL (1–4 Karten) {%- endcomment -%}
+            {% assign benefit_blocks = section.blocks | where: 'type', 'benefit_grid' %}
+            {% for b in benefit_blocks %}
+              {% if b.settings.tab_handle == current_handle %}
+                <div class="te-card te-benefit-wrapper">
+                  {% if b.settings.title != blank %}
+                    <h6 style="display:flex;gap:10px;align-items:center">
+                      {% if b.settings.icon != blank %}<i class="{{ b.settings.icon }}"></i>{% endif %}
+                      {{ b.settings.title }}
+                    </h6>
+                  {% endif %}
+                  <div class="te-benefit-grid">
+                    {% if b.settings.enable_1 %}
+                      <div class="te-benefit-card">
+                        {% if b.settings.icon_1 != blank %}<i class="{{ b.settings.icon_1 }}"></i>{% endif %}
+                        <div><h6>{{ b.settings.title_1 }}</h6>{% if b.settings.sub_1 != blank %}<p>{{ b.settings.sub_1 }}</p>{% endif %}</div>
+                      </div>
+                    {% endif %}
+                    {% if b.settings.enable_2 %}
+                      <div class="te-benefit-card">
+                        {% if b.settings.icon_2 != blank %}<i class="{{ b.settings.icon_2 }}"></i>{% endif %}
+                        <div><h6>{{ b.settings.title_2 }}</h6>{% if b.settings.sub_2 != blank %}<p>{{ b.settings.sub_2 }}</p>{% endif %}</div>
+                      </div>
+                    {% endif %}
+                    {% if b.settings.enable_3 %}
+                      <div class="te-benefit-card">
+                        {% if b.settings.icon_3 != blank %}<i class="{{ b.settings.icon_3 }}"></i>{% endif %}
+                        <div><h6>{{ b.settings.title_3 }}</h6>{% if b.settings.sub_3 != blank %}<p>{{ b.settings.sub_3 }}</p>{% endif %}</div>
+                      </div>
+                    {% endif %}
+                    {% if b.settings.enable_4 %}
+                      <div class="te-benefit-card">
+                        {% if b.settings.icon_4 != blank %}<i class="{{ b.settings.icon_4 }}"></i>{% endif %}
+                        <div><h6>{{ b.settings.title_4 }}</h6>{% if b.settings.sub_4 != blank %}<p>{{ b.settings.sub_4 }}</p>{% endif %}</div>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div><!-- /te-tiles--main -->
+
+          <!-- CTA ganz unten, alleinstehend -->
+          {% assign current_sidebar = section.blocks | where: 'type', 'sidebar' | first %}
+          {% if current_sidebar and current_sidebar.settings.tab_handle == current_handle and current_sidebar.settings.show_sidebar %}
+            <div class="te-cta-wrap">
+              <div class="te-cta-box">
+                <div class="te-cta-box__inner">
+                  {% if current_sidebar.settings.title != blank %}<h5 class="te-cta-box__title">{{ current_sidebar.settings.title }}</h5>{% endif %}
+                  {% if current_sidebar.settings.text != blank %}<p class="te-cta-box__text">{{ current_sidebar.settings.text }}</p>{% endif %}
+                  {% if current_sidebar.settings.btn1_label != blank %}
+                    <a href="{{ current_sidebar.settings.btn1_link | default: '#' }}"
+                       class="te-btn te-btn--primary"
+                       {% if current_sidebar.settings.btn1_bg %}
+                         style="background:{{ current_sidebar.settings.btn1_bg }};border-color:{{ current_sidebar.settings.btn1_bg }};color:{{ current_sidebar.settings.btn1_text }}"
+                       {% endif %}>{{ current_sidebar.settings.btn1_label }}</a>
+                  {% endif %}
+                  {% if current_sidebar.settings.btn2_label != blank %}
+                    <a href="{{ current_sidebar.settings.btn2_link | default: '#' }}" class="te-btn te-btn--outline">{{ current_sidebar.settings.btn2_label }}</a>
+                  {% endif %}
+
+                  {% if current_sidebar.settings.list != blank %}
+                    <div class="te-cta-divider" style="height:1px;background:#e5e7eb;margin:20px 0"></div>
+                    <ul style="list-style:none;padding:0;margin:0">
+                      {% assign list_items = current_sidebar.settings.list | newline_to_br | split: '<br />' %}
+                      {% for item in list_items %}
+                        {% if item != blank %}
+                          <li class="te-icon-bullet" style="display:flex;gap:12px;margin:10px 0;color:#6b7280;font-size:.95rem">
+                            <i class="bi {% if forloop.index == 1 %}bi-box{% elsif forloop.index == 2 %}bi-truck{% else %}bi-shield-check{% endif %}" style="color:var(--c-primary)"></i>
+                            <span>{{ item | strip }}</span>
+                          </li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</section>
+
+<script>
+  (function(){
+    const sectionId='{{ section.id }}';
+    const section=document.getElementById(`te-detail-${sectionId}`);
+    const pills=section.querySelectorAll('.te-pill');
+    const routes=section.querySelectorAll('.te-route');
+    function showRoute(handle){
+      routes.forEach(r=>r.classList.toggle('is-active',r.dataset.route===handle));
+      pills.forEach(p=>p.classList.toggle('is-active',p.dataset.handle===handle));
+      if(window.scrollY>section.offsetTop){window.scrollTo({top:section.offsetTop-20,behavior:'smooth'});}
+    }
+    pills.forEach(pill=>pill.addEventListener('click',e=>{e.preventDefault();showRoute(pill.dataset.handle);if(history.replaceState){history.replaceState(null,null,`#${pill.dataset.handle}`)}}));
+    function initRoute(){const hash=window.location.hash.replace('#','');if(hash&&section.querySelector(`.te-route[data-route="${hash}"]`)){showRoute(hash)}}
+    window.addEventListener('hashchange',()=>{const hash=window.location.hash.replace('#','');if(hash&&section.querySelector(`.te-route[data-route="${hash}"]`)){showRoute(hash)}})
+    document.addEventListener('shopify:section:load',e=>{if(e.detail.sectionId===sectionId){initRoute();}});
+    initRoute();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Trockeneis Detail",
+  "tag": "section",
+  "class": "section te-detail-section",
+  "settings": [
+    { "type": "header", "content": "Moderne Features" },
+    { "type": "checkbox", "id": "enable_inter_font", "label": "Inter Font aktivieren", "default": true },
+    { "type": "checkbox", "id": "enable_glassmorphism", "label": "Glassmorphismus-Effekt", "default": true },
+    { "type": "checkbox", "id": "enable_gradient_border", "label": "Gradient Border bei Hover", "default": true },
+    { "type": "checkbox", "id": "enable_hero_animation", "label": "Hero Animation", "default": false },
+
+    { "type": "header", "content": "Layout" },
+    { "type": "range", "id": "container_width", "label": "Container Breite (px)", "default": 1120, "min": 960, "max": 1400, "step": 20 },
+    { "type": "range", "id": "border_radius", "label": "Eckenradius (px)", "default": 12, "min": 4, "max": 24, "step": 2 },
+
+    { "type": "header", "content": "Navigation" },
+    { "type": "text", "id": "nav_label", "label": "ARIA-Label Navigation", "default": "Detail-Navigation" },
+    { "type": "text", "id": "nav_prefix", "label": "Prefix in Pill-Leiste", "default": "Detailseiten" },
+    { "type": "checkbox", "id": "sticky", "label": "Pill-Leiste sticky", "default": true },
+    { "type": "range", "id": "sticky_offset", "label": "Sticky Offset (px)", "default": 0, "min": 0, "max": 100, "step": 1 },
+
+    { "type": "header", "content": "Pill-Farben" },
+    { "type": "color", "id": "pill_bg", "label": "Normal – Hintergrund", "default": "#ffffff" },
+    { "type": "color", "id": "pill_text", "label": "Normal – Text", "default": "#475569" },
+    { "type": "color", "id": "pill_border", "label": "Normal – Rahmen", "default": "#e2e8f0" },
+    { "type": "color", "id": "pill_hover_bg", "label": "Hover – Hintergrund", "default": "#f8fafc" },
+    { "type": "color", "id": "pill_hover_text", "label": "Hover – Text", "default": "#0f172a" },
+    { "type": "color", "id": "pill_active_bg", "label": "Aktiv – Hintergrund", "default": "#0ea5e9" },
+    { "type": "color", "id": "pill_active_text", "label": "Aktiv – Text", "default": "#ffffff" },
+
+    { "type": "header", "content": "Hero-Band" },
+    { "type": "color", "id": "hero_start", "label": "Hero Verlauf Start", "default": "#0b1220" },
+    { "type": "color", "id": "hero_end", "label": "Hero Verlauf Ende", "default": "#0f172a" },
+    { "type": "color", "id": "hero_third_color", "label": "Hero Verlauf Dritte Farbe", "default": "#1e293b" },
+    { "type": "range", "id": "hero_gradient_angle", "label": "Gradient Winkel", "default": 110, "min": 0, "max": 360, "step": 10, "unit": "deg" },
+    { "type": "color", "id": "hero_text", "label": "Hero Text (Allgemein)", "default": "#cbd5e1" },
+    { "type": "color", "id": "hero_title_color", "label": "Hero Titel Farbe", "default": "#ffffff" },
+
+    { "type": "header", "content": "Design System Farben" },
+    { "type": "color", "id": "primary_color", "label": "Primärfarbe", "default": "#0ea5e9" },
+    { "type": "color", "id": "primary_dark", "label": "Primärfarbe Dunkel", "default": "#0284c7" },
+    { "type": "color", "id": "success_color", "label": "Erfolgsfarbe", "default": "#16a34a" },
+    { "type": "color", "id": "border_color", "label": "Rahmenfarbe", "default": "#e2e8f0" },
+    { "type": "color", "id": "background_color", "label": "Hintergrundfarbe", "default": "#f8fafc" },
+    { "type": "color", "id": "muted_color", "label": "Gedämpfte Textfarbe", "default": "#475569" },
+
+    { "type": "header", "content": "Typografie" },
+    { "type": "range", "id": "fs_base", "label": "Body Schriftgröße (px)", "min": 14, "max": 20, "step": 1, "default": 17 },
+    { "type": "range", "id": "fs_h1", "label": "H1 Schriftgröße (px)", "min": 28, "max": 64, "step": 1, "default": 42 },
+    { "type": "range", "id": "fs_h2", "label": "H2 Schriftgröße (px)", "min": 22, "max": 48, "step": 1, "default": 28 },
+    { "type": "range", "id": "fs_h3", "label": "H3 Schriftgröße (px)", "min": 18, "max": 36, "step": 1, "default": 20 },
+    { "type": "color", "id": "color_body", "label": "Body Farbe", "default": "#0f172a" },
+    { "type": "color", "id": "color_head", "label": "Überschriften Farbe", "default": "#0f172a" }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab (Seite)",
+      "settings": [
+        { "type": "text", "id": "handle", "label": "Eindeutige Kennung", "default": "kuehlen" },
+        { "type": "text", "id": "label", "label": "Label (Navigation)", "default": "Kühlen" },
+        { "type": "text", "id": "icon", "label": "Icon CSS-Klasse", "default": "bi bi-snow2" },
+        { "type": "text", "id": "breadcrumb_parent", "label": "Breadcrumb Eltern", "default": "Anwendungen" },
+        { "type": "text", "id": "title", "label": "Seiten-Titel", "default": "Kühlen mit Trockeneis" },
+        { "type": "textarea", "id": "subtitle", "label": "Untertitel", "default": "Zuverlässige Tiefkühlung ohne Feuchtigkeit oder Rückstände." }
+      ]
+    },
+    {
+      "type": "tile",
+      "name": "Kachel",
+      "settings": [
+        { "type": "text", "id": "tab_handle", "label": "Zugehörige Tab-Kennung", "default": "kuehlen" },
+        { "type": "text", "id": "icon", "label": "Icon CSS-Klasse", "default": "bi bi-box-seam" },
+        { "type": "text", "id": "title", "label": "Titel", "default": "Versand & Spedition" },
+        { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Bis zu 4 Tage Kühlzeit in isolierten Boxen. ADR UN 1845 (Klasse 9), lebensmittelecht.</p>" },
+        { "type": "textarea", "id": "checklist", "label": "Checkliste", "default": "Sichere Kühlkette ohne Schmelzwasser\nStyroporboxen bis 10 L", "info": "Eine Zeile pro Punkt" },
+
+        { "type": "header", "content": "Inline KPI (optional)" },
+        { "type": "checkbox", "id": "kpi_enable", "label": "KPI anzeigen", "default": false },
+        { "type": "text", "id": "kpi_icon", "label": "KPI Icon", "default": "bi bi-thermometer-snow" },
+        { "type": "text", "id": "kpi_title", "label": "KPI Titel", "default": "Lange Kühlung" },
+        { "type": "text", "id": "kpi_sub", "label": "KPI Unterzeile", "default": "ohne Stromanschluss" },
+
+        { "type": "header", "content": "Callout (optional)" },
+        { "type": "checkbox", "id": "callout_enable", "label": "Callout anzeigen", "default": false },
+        { "type": "text", "id": "callout_title", "label": "Callout Titel", "default": "Tipp:" },
+        { "type": "text", "id": "callout_text", "label": "Callout Text", "default": "Nach Erwärmung feste Verbindung." }
+      ]
+    },
+    {
+      "type": "kpi",
+      "name": "KPI (groß)",
+      "settings": [
+        { "type": "text", "id": "tab_handle", "label": "Zugehörige Tab-Kennung", "default": "kuehlen" },
+        { "type": "text", "id": "icon", "label": "Icon CSS-Klasse", "default": "bi bi-droplet" },
+        { "type": "text", "id": "title", "label": "Titel", "default": "0% Feuchtigkeit" },
+        { "type": "text", "id": "sub", "label": "Unterzeile", "default": "keine Nässe, keine Rückstände" }
+      ]
+    },
+    {
+      "type": "feature",
+      "name": "Feature-Liste",
+      "settings": [
+        { "type": "text", "id": "tab_handle", "label": "Zugehörige Tab-Kennung", "default": "kuehlen" },
+        { "type": "text", "id": "icon", "label": "Icon CSS-Klasse", "default": "bi bi-shield-check" },
+        { "type": "text", "id": "title", "label": "Titel", "default": "Warum Trockeneis?" },
+        { "type": "textarea", "id": "items", "label": "Punkte", "default": "Rückstandsfrei (sublimiert)\nLebensmittelecht\nNicht abrasiv & ohne Chemie", "info": "Eine Zeile pro Punkt" }
+      ]
+    },
+    {
+      "type": "benefit_grid",
+      "name": "Vorteils-Kachel",
+      "settings": [
+        { "type": "text", "id": "tab_handle", "label": "Zugehörige Tab-Kennung", "default": "kuehlen" },
+        { "type": "text", "id": "icon", "label": "Titel-Icon (optional)", "default": "bi bi-shield" },
+        { "type": "text", "id": "title", "label": "Titel über dem Grid", "default": "Warum Trockeneis zum Kühlen?" },
+
+        { "type": "header", "content": "Karte 1" },
+        { "type": "checkbox", "id": "enable_1", "label": "Karte 1 anzeigen", "default": true },
+        { "type": "text", "id": "icon_1", "label": "Icon 1", "default": "bi bi-droplet" },
+        { "type": "text", "id": "title_1", "label": "Titel 1", "default": "0% Feuchtigkeit" },
+        { "type": "text", "id": "sub_1", "label": "Unterzeile 1", "default": "keine Nässe, keine Rückstände" },
+
+        { "type": "header", "content": "Karte 2" },
+        { "type": "checkbox", "id": "enable_2", "label": "Karte 2 anzeigen", "default": true },
+        { "type": "text", "id": "icon_2", "label": "Icon 2", "default": "bi bi-recycle" },
+        { "type": "text", "id": "title_2", "label": "Titel 2", "default": "Rückstandsfrei" },
+        { "type": "text", "id": "sub_2", "label": "Unterzeile 2", "default": "sublimiert zu CO₂" },
+
+        { "type": "header", "content": "Karte 3" },
+        { "type": "checkbox", "id": "enable_3", "label": "Karte 3 anzeigen", "default": true },
+        { "type": "text", "id": "icon_3", "label": "Icon 3", "default": "bi bi-award" },
+        { "type": "text", "id": "title_3", "label": "Titel 3", "default": "Lebensmittelecht" },
+        { "type": "text", "id": "sub_3", "label": "Unterzeile 3", "default": "für Food & Pharma" },
+
+        { "type": "header", "content": "Karte 4 (optional)" },
+        { "type": "checkbox", "id": "enable_4", "label": "Karte 4 anzeigen", "default": false },
+        { "type": "text", "id": "icon_4", "label": "Icon 4", "default": "bi bi-thermometer-snow" },
+        { "type": "text", "id": "title_4", "label": "Titel 4", "default": "Tiefe Temperaturen" },
+        { "type": "text", "id": "sub_4", "label": "Unterzeile 4", "default": "ohne Stromanschluss" }
+      ]
+    },
+    {
+      "type": "sidebar",
+      "name": "CTA unten (Bestellen)",
+      "settings": [
+        { "type": "text", "id": "tab_handle", "label": "Zugehörige Tab-Kennung", "default": "kuehlen" },
+        { "type": "checkbox", "id": "show_sidebar", "label": "CTA anzeigen", "default": true },
+        { "type": "text", "id": "title", "label": "Titel", "default": "Sofort bestellen" },
+        { "type": "textarea", "id": "text", "label": "Text", "default": "Frisch produziert, schnelle Lieferung." },
+        { "type": "text", "id": "btn1_label", "label": "Button 1 Label", "default": "Trockeneis kaufen" },
+        { "type": "url", "id": "btn1_link", "label": "Button 1 Link" },
+        { "type": "color", "id": "btn1_bg", "label": "Button 1 Hintergrund", "default": "#0ea5e9" },
+        { "type": "color", "id": "btn1_text", "label": "Button 1 Textfarbe", "default": "#ffffff" },
+        { "type": "text", "id": "btn2_label", "label": "Button 2 Label", "default": "Anfrage senden" },
+        { "type": "url", "id": "btn2_link", "label": "Button 2 Link" },
+        { "type": "color", "id": "btn2_outline", "label": "Button 2 Rahmen/Text", "default": "#0ea5e9" },
+        { "type": "color", "id": "btn2_text", "label": "Button 2 Textfarbe", "default": "#0ea5e9" },
+        { "type": "textarea", "id": "list", "label": "Stichpunkte", "default": "Boxen bis 10 L\nRegionale Lieferung 1–2 Werktage\nADR UN 1845", "info": "Eine Zeile pro Punkt" }
+      ]
+    }
+  ],
+  "max_blocks": 100,
+  "presets": [
+    {
+      "name": "Trockeneis Detail-Tabs (Modern, CTA unten – Vorlagegröße)",
+      "blocks": [
+        { "type": "tab", "settings": { "handle": "kuehlen", "label": "Kühlen", "icon": "bi bi-snow2", "breadcrumb_parent": "Anwendungen", "title": "Kühlen mit Trockeneis", "subtitle": "Lebensmittel, Pharma, Maschinen – zuverlässig und trocken." } },
+        { "type": "tile", "settings": { "tab_handle": "kuehlen", "icon": "bi bi-box-seam", "title": "Versand & Spedition", "text": "<p>Bis zu 4 Tage Kühlzeit. ADR UN 1845 (Klasse 9), lebensmittelecht.</p>", "checklist": "Sichere Kühlkette ohne Schmelzwasser\nStyroporboxen bis 10 L" } },
+        { "type": "benefit_grid", "settings": { "tab_handle": "kuehlen", "title": "Warum Trockeneis zum Kühlen?", "enable_1": true, "enable_2": true, "enable_3": true, "enable_4": false } },
+        { "type": "kpi", "settings": { "tab_handle": "kuehlen", "icon": "bi bi-droplet", "title": "0% Feuchtigkeit", "sub": "keine Rückstände" } },
+        { "type": "feature", "settings": { "tab_handle": "kuehlen", "icon": "bi bi-shield-check", "title": "Warum Trockeneis?", "items": "Rückstandsfrei (sublimiert)\nLebensmittelecht\nNicht abrasiv & ohne Chemie" } },
+        { "type": "sidebar", "settings": { "tab_handle": "kuehlen", "show_sidebar": true, "title": "Sofort bestellen", "text": "Frisch produziert, schnelle Lieferung." } }
+      ]
+    }
+  ]
+}
+{% endschema %}
